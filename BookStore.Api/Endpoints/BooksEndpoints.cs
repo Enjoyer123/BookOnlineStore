@@ -21,10 +21,10 @@ public static class BookEndpoints
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
-                query = query.Where(b => b.Title.Contains(name));
+                query = query.Where(b => EF.Functions.ILike(b.Title, $"%{name}%"));
 
             if (!string.IsNullOrEmpty(category))
-                query = query.Where(b => b.Category!.Name.Contains(category));
+                query = query.Where(b => EF.Functions.ILike(b.Category!.Name, $"%{category}%"));
 
             var books = await query.ToListAsync();
             return Results.Ok(books.Select(b => b.ToDto()));
@@ -86,13 +86,14 @@ public static class BookEndpoints
            }
 
            await db.SaveChangesAsync();
+           
            var updated = await db.Books
                 .Include(b => b.Category)
                 .Include(b => b.Publisher)
                 .Include(b => b.BookAuthors)
                     .ThenInclude(ba => ba.Author)
                 .FirstAsync(b => b.Id == id);
-           return Results.Ok(book.ToDto());
+           return Results.Ok(updated.ToDto());
        });
 
         group.MapDelete("/{id:int}", async (AppDbContext db, int id) =>
