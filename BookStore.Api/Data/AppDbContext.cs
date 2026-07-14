@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Publisher> Publishers => Set<Publisher>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,5 +33,9 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(b => b.PublisherId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<User>()          
+            .HasIndex(u => u.Email)
+            .IsUnique();
     }
 }
