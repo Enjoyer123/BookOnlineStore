@@ -13,6 +13,8 @@ public class AppDbContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Publisher> Publishers => Set<Publisher>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,8 +36,29 @@ public class AppDbContext : DbContext
             .HasForeignKey(b => b.PublisherId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<User>()          
+        modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        // Cart ↔ User: 1-to-1
+        modelBuilder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithOne()
+            .HasForeignKey<Cart>(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CartItem → Cart: many-to-one, Cascade
+        modelBuilder.Entity<CartItem>()
+            .HasOne(ci => ci.Cart)
+            .WithMany(c => c.Items)
+            .HasForeignKey(ci => ci.CartId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // CartItem → Book: many-to-one, Restrict
+        modelBuilder.Entity<CartItem>()
+            .HasOne(ci => ci.Book)
+            .WithMany()
+            .HasForeignKey(ci => ci.BookId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

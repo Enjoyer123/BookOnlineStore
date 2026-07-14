@@ -82,6 +82,7 @@ app.MapAuthorEndpoints();
 app.MapPublisherEndpoints();
 app.MapBookEndpoints();
 app.MapAuthEndpoints();  
+app.MapCartEndpoints();
 
 app.Run();
 

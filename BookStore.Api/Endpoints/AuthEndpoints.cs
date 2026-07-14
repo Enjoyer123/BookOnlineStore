@@ -3,9 +3,9 @@ using Bookstore.Api.Dtos;
 using Bookstore.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;   
-using Microsoft.IdentityModel.Tokens;    
-using System.Text;                       
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 public static class AuthEndpoints
@@ -41,7 +41,7 @@ public static class AuthEndpoints
                 return Results.Unauthorized();
             }
 
-            var token = GenerateJwtToken(user,config);
+            var token = GenerateJwtToken(user, config);
 
             http.Response.Cookies.Append("jwt", token, new CookieOptions
             {
@@ -53,6 +53,17 @@ public static class AuthEndpoints
 
             return Results.Ok(new AuthResponseDto(user.Email));
         });
+
+        group.MapPost("/logout", (HttpContext http) =>
+       {
+           http.Response.Cookies.Delete("jwt", new CookieOptions
+           {
+               HttpOnly = true,
+               Secure = false,
+               SameSite = SameSiteMode.Strict
+           });
+           return Results.Ok();
+       });
     }
 
     private static string GenerateJwtToken(User user, IConfiguration config)
